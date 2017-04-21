@@ -1,0 +1,2 @@
+alias ber="bundle exec rake"
+alias fix='reset; stty sane; tput rs1; clear; echo -e "\033c"'
