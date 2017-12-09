@@ -1,8 +1,8 @@
 "*":
   "atom-material-ui":
     colors:
-      abaseColor: "#324f96"
-      accentColor: "#65fff6"
+      abaseColor: "#006998"
+      accentColor: "#007c8a"
     tabs:
       compactTabs: true
     ui:
@@ -15,7 +15,7 @@
     telemetryConsent: "limited"
     themes: [
       "atom-material-ui"
-      "atom-material-syntax"
+      "atom-material-syntax-dark"
     ]
   editor:
     fontSize: 12
