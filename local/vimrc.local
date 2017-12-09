@@ -5,7 +5,9 @@ map <C-N> :cn<CR>
 map <Leader>e :e <C-R>=expand("%:p:h") . '/'<CR>
 map <Leader>v :vnew <C-R>=expand("%:p:h") . '/'<CR>
 
-nnoremap <Leader>g :!rake test:Led<CR>
+" nnoremap <Leader>g :!rake test:Led<CR>
+" nnoremap <Leader>g :!tmux send-keys -t 2 'clear && rake test:delta' C-m &<CR><CR>
+nnoremap <Leader>g :!tmux send-keys -t 2 Up C-m &<CR><CR>
 
 " bind b to 'brew' coffee-script
 nnoremap <Leader>b :w<CR>:CoffeeRun<CR>
@@ -13,4 +15,11 @@ nnoremap <Leader>b :w<CR>:CoffeeRun<CR>
 " bind K to grep word under cursor
 nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
 
+" Use 100 characters
+set textwidth=100
+set colorcolumn=0
+
 let g:rails_gem_projections = {'draper': { 'app/decorators/*.rb': { 'command': 'decorator' }}}
+
+" bind jk to Esc in insert mode
+inoremap jk <Esc>
