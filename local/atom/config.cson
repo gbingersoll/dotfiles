@@ -8,9 +8,14 @@
     ui:
       panelContrast: true
       useAnimations: false
+  build:
+    saveOnBuild: true
   core:
     disabledPackages: [
       "minimap"
+      "build-rake"
+      "emmet"
+      "pigments"
     ]
     telemetryConsent: "limited"
     themes: [
@@ -27,13 +32,28 @@
     showInvisibles: true
     tabType: "soft"
   "exception-reporting":
-    userId: "c28e4788-3824-4a47-ac91-8c5adb71ccd0"
+    userId: "ad53d0cb-1c94-4a9a-8bdb-89fd26f356ec"
   "file-icons":
     coloured: false
   "git-diff": {}
   "highlight-selected":
     hideHighlightOnSelectedWord: true
+  "linter-ui-default": {}
   minimap:
     displayMinimapOnLeft: true
+  "platformio-ide-terminal":
+    ansiColors:
+      normal:
+        blue: "#006998"
+      zBright:
+        brightBlue: "#006998"
+    style:
+      animationSpeed: 10
+      defaultPanelHeight: "400px"
+      fontSize: "12"
+  "ruby-test":
+    specFramework: "rspec"
+    unityAllCommand: "cd test;rake test"
+    unityFileCommand: "cd test;rake test:{base_name}"
   welcome:
     showOnStartup: false
