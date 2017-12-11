@@ -35,7 +35,11 @@
     userId: "ad53d0cb-1c94-4a9a-8bdb-89fd26f356ec"
   "file-icons":
     coloured: false
+  "fuzzy-finder":
+    preserveLastSearch: true
   "git-diff": {}
+  "goto-definition":
+    performanceMode: true
   "highlight-selected":
     hideHighlightOnSelectedWord: true
   "linter-ui-default": {}
