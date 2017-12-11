@@ -568,15 +568,6 @@ function collectRangeInBufferRow(editor, row, regex) {
   return ranges
 }
 
-function getLargestFoldRangeContainsBufferRow(editor, row) {
-  const markers = editor.displayLayer.foldsMarkerLayer.findMarkers({intersectsRow: row})
-  if (markers && markers.length) {
-    return markers
-      .map(marker => marker.getRange())
-      .reduce((range, largest) => (range.start.isLessThan(largest.start) ? range : largest))
-  }
-}
-
 // take bufferPosition
 function translatePointAndClip(editor, point, direction) {
   point = Point.fromObject(point)
@@ -1010,14 +1001,34 @@ function getTraversalForText(text) {
   return new Point(row, column)
 }
 
-// Return startRow of fold if row was folded or just return passed row.
-function getFoldStartRowForRow(editor, row) {
-  return editor.isFoldedAtBufferRow(row) ? getLargestFoldRangeContainsBufferRow(editor, row).start.row : row
+function getRowAmongFoldedRowIntersectsScreenRow(editor, screenRow, which) {
+  const bufferRange = editor.bufferRangeForScreenRange([[screenRow, 0], [screenRow, Infinity]])
+  const markers = editor.displayLayer.foldsMarkerLayer.findMarkers({intersectsRange: bufferRange})
+  if (!markers.length) {
+    throw new Error("getRowAmongFoldedRowIntersectsScreenRow() called for non-folded screenRow!")
+  }
+  const ranges = markers.map(marker => marker.getRange())
+  return which === "min"
+    ? Math.min(...ranges.map(range => range.start.row))
+    : Math.max(...ranges.map(range => range.end.row))
 }
 
-// Return endRow of fold if row was folded or just return passed row.
+// Return min row among folds intersecting screenRow of bufferRow if bufferRow was folded.
+function getFoldStartRowForRow(editor, row) {
+  return editor.isFoldedAtBufferRow(row)
+    ? getRowAmongFoldedRowIntersectsScreenRow(editor, editor.screenRowForBufferRow(row), "min")
+    : row
+}
+
+// Return max row among folds intersecting screenRow of bufferRow if bufferRow was folded.
 function getFoldEndRowForRow(editor, row) {
-  return editor.isFoldedAtBufferRow(row) ? getLargestFoldRangeContainsBufferRow(editor, row).end.row : row
+  return editor.isFoldedAtBufferRow(row)
+    ? getRowAmongFoldedRowIntersectsScreenRow(editor, editor.screenRowForBufferRow(row), "max")
+    : row
+}
+
+function doesRangeStartAndEndWithSameIndentLevel(editor, range) {
+  return editor.indentationForBufferRow(range.start.row) === editor.indentationForBufferRow(range.end.row)
 }
 
 function getList(start, end, inclusive = true) {
@@ -1178,7 +1189,7 @@ module.exports = {
   getNonWordCharactersForCursor,
   shrinkRangeEndToBeforeNewLine,
   collectRangeInBufferRow,
-  getLargestFoldRangeContainsBufferRow,
+  getRowAmongFoldedRowIntersectsScreenRow,
   translatePointAndClip,
   getRangeByTranslatePointAndClip,
   getPackage,
@@ -1214,6 +1225,7 @@ module.exports = {
   traverseTextFromPoint,
   getFoldStartRowForRow,
   getFoldEndRowForRow,
+  doesRangeStartAndEndWithSameIndentLevel,
   getList,
   unindent,
   removeIndent,
