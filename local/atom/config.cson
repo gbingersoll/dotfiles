@@ -62,7 +62,7 @@
     style:
       animationSpeed: 10
       defaultPanelHeight: "400px"
-      fontSize: "12"
+      fontSize: "14"
   "ruby-test":
     specFramework: "rspec"
     unityAllCommand: "cd test;rake test"
