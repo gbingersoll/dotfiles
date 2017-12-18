@@ -11,11 +11,17 @@
   build:
     saveOnBuild: true
   core:
+    customFileTypes:
+      "source.cpp": [
+        "c"
+      ]
     disabledPackages: [
       "minimap"
       "build-rake"
       "emmet"
       "pigments"
+      "ide-cpp"
+      "atom-ide-ui"
     ]
     telemetryConsent: "limited"
     themes: [
@@ -23,7 +29,6 @@
       "atom-material-syntax-dark"
     ]
   editor:
-    fontSize: 12
     invisibles:
       eol: " "
       space: " "
@@ -42,7 +47,10 @@
     performanceMode: true
   "highlight-selected":
     hideHighlightOnSelectedWord: true
-  "linter-ui-default": {}
+  "linter-cpplint":
+    extensions: "c++,cc,cpp,cu,cuh,h,hpp,c"
+  "linter-ui-default":
+    panelHeight: 278
   minimap:
     displayMinimapOnLeft: true
   "platformio-ide-terminal":
