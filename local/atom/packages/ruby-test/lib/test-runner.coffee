@@ -54,7 +54,14 @@ module.exports =
     command: =>
       framework = @sourceInfo.testFramework()
       cmd = Command.testCommand(@params.testScope, framework)
+
+      # convert baseName to snake_case
+      bn = @sourceInfo.baseName().replace /^[A-Z]/, (m) ->
+        m.toLowerCase()
+      bn = bn.replace /[A-Z]/, (m) ->
+        "_" + m.toLowerCase()
+
       cmd.replace('{relative_path}', @sourceInfo.activeFile()).
-          replace('{base_name}', @sourceInfo.baseName()).
+          replace('{base_name}', bn).
           replace('{line_number}', @sourceInfo.currentLine()).
           replace('{regex}', @sourceInfo.minitestRegExp())
