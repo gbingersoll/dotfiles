@@ -49,6 +49,7 @@
     hideHighlightOnSelectedWord: true
   "linter-cpplint":
     extensions: "c++,cc,cpp,cu,cuh,h,hpp,c"
+    filters: "-readability/casting"
   "linter-ui-default":
     panelHeight: 278
   minimap:
