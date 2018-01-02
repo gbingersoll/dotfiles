@@ -44,4 +44,5 @@
   'space s': 'ruby-test:test-single'
   'space l': 'ruby-test:test-previous'
   'space v': 'ruby-test:toggle'
-  'space space': 'custom:open-companion'
+  'space space': 'custom:open-companion',
+  'space b': 'build:trigger'

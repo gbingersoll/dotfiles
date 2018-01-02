@@ -1,4 +1,9 @@
 "*":
+  "":
+    source:
+      ruby:
+        editor:
+          tabLength: 2
   "atom-material-ui":
     colors:
       abaseColor: "#006998"
@@ -10,6 +15,8 @@
       useAnimations: false
   build:
     saveOnBuild: true
+    scrollOnError: true
+  "build-make": {}
   core:
     customFileTypes:
       "source.cpp": [
@@ -28,6 +35,8 @@
       "atom-material-ui"
       "atom-material-syntax-dark"
     ]
+  "dbg-gdb":
+    logToConsole: true
   editor:
     invisibles:
       eol: " "
@@ -48,10 +57,10 @@
   "highlight-selected":
     hideHighlightOnSelectedWord: true
   "linter-cpplint":
+    executablePath: "/Users/gbingersoll/Tools/google_styleguide/cpplint/cpplint.py"
     extensions: "c++,cc,cpp,cu,cuh,h,hpp,c"
-    filters: "-readability/casting"
   "linter-ui-default":
-    panelHeight: 278
+    showPanel: true
   minimap:
     displayMinimapOnLeft: true
   "platformio-ide-terminal":
@@ -70,3 +79,7 @@
     unityFileCommand: "cd test;rake test:{base_name}"
   welcome:
     showOnStartup: false
+".makefile.source":
+  editor:
+    tabLength: 8
+    tabType: "hard"
