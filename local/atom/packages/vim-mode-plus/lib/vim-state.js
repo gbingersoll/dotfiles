@@ -493,6 +493,9 @@ module.exports = class VimState {
     // Component is not necessary avaiable see #98.
     if (this.editorElement.component) {
       this.editorElement.component.setInputEnabled(false)
+      if (atom.appVersion === "1.24.0-beta0") {
+        this.editor.setReadOnly && this.editor.setReadOnly(false)
+      }
     }
 
     // In visual-mode, cursor can place at EOL. move left if cursor is at EOL

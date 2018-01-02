@@ -313,7 +313,7 @@ function getLineTextToBufferPosition(editor, {row, column}, {exclusive = true} =
 }
 
 function getCodeFoldRanges({tokenizedBuffer}) {
-  return tokenizedBuffer.getFoldableRanges().filter(range => !tokenizedBuffer.isRowCommented(range.start.row))
+  return tokenizedBuffer.getFoldableRanges(1).filter(range => !tokenizedBuffer.isRowCommented(range.start.row))
 }
 
 // Used in vmp-jasmine-increase-focus
@@ -1001,11 +1001,11 @@ function getTraversalForText(text) {
   return new Point(row, column)
 }
 
-function getRowAmongFoldedRowIntersectsScreenRow(editor, screenRow, which) {
-  const bufferRange = editor.bufferRangeForScreenRange([[screenRow, 0], [screenRow, Infinity]])
+function getRowAmongFoldedRowIntersectsBufferRow(editor, bufferRow, which) {
+  const bufferRange = editor.bufferRangeForBufferRow(bufferRow)
   const markers = editor.displayLayer.foldsMarkerLayer.findMarkers({intersectsRange: bufferRange})
   if (!markers.length) {
-    throw new Error("getRowAmongFoldedRowIntersectsScreenRow() called for non-folded screenRow!")
+    throw new Error("getRowAmongFoldedRowIntersectsBufferRow() called for non-folded bufferRow!")
   }
   const ranges = markers.map(marker => marker.getRange())
   return which === "min"
@@ -1015,16 +1015,12 @@ function getRowAmongFoldedRowIntersectsScreenRow(editor, screenRow, which) {
 
 // Return min row among folds intersecting screenRow of bufferRow if bufferRow was folded.
 function getFoldStartRowForRow(editor, row) {
-  return editor.isFoldedAtBufferRow(row)
-    ? getRowAmongFoldedRowIntersectsScreenRow(editor, editor.screenRowForBufferRow(row), "min")
-    : row
+  return editor.isFoldedAtBufferRow(row) ? getRowAmongFoldedRowIntersectsBufferRow(editor, row, "min") : row
 }
 
 // Return max row among folds intersecting screenRow of bufferRow if bufferRow was folded.
 function getFoldEndRowForRow(editor, row) {
-  return editor.isFoldedAtBufferRow(row)
-    ? getRowAmongFoldedRowIntersectsScreenRow(editor, editor.screenRowForBufferRow(row), "max")
-    : row
+  return editor.isFoldedAtBufferRow(row) ? getRowAmongFoldedRowIntersectsBufferRow(editor, row, "max") : row
 }
 
 function doesRangeStartAndEndWithSameIndentLevel(editor, range) {
@@ -1134,6 +1130,23 @@ function getRowRangeForCommentAtBufferRow(editor, row) {
   return [startRow, endRow]
 }
 
+function getHunkRangeAtBufferRow(editor, row) {
+  const hunkChar = editor.lineTextForBufferRow(row)[0]
+  if (hunkChar && (hunkChar === "+" || hunkChar === "-")) {
+    isHunkRow = row => {
+      const lineText = editor.lineTextForBufferRow(row)
+      return lineText && lineText[0] === hunkChar
+    }
+
+    let [startRow, endRow] = [row, row]
+
+    while (isHunkRow(startRow - 1)) startRow--
+    while (isHunkRow(endRow + 1)) endRow++
+
+    return new Range([startRow, 0], [endRow, Infinity])
+  }
+}
+
 module.exports = {
   assertWithException,
   getLast,
@@ -1189,7 +1202,6 @@ module.exports = {
   getNonWordCharactersForCursor,
   shrinkRangeEndToBeforeNewLine,
   collectRangeInBufferRow,
-  getRowAmongFoldedRowIntersectsScreenRow,
   translatePointAndClip,
   getRangeByTranslatePointAndClip,
   getPackage,
@@ -1232,4 +1244,5 @@ module.exports = {
   normalizeIndent,
   atomVersionSatisfies,
   getRowRangeForCommentAtBufferRow,
+  getHunkRangeAtBufferRow,
 }

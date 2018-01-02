@@ -60,6 +60,7 @@
     executablePath: "/Users/gbingersoll/Tools/google_styleguide/cpplint/cpplint.py"
     extensions: "c++,cc,cpp,cu,cuh,h,hpp,c"
   "linter-ui-default":
+    panelHeight: 396
     showPanel: true
   minimap:
     displayMinimapOnLeft: true

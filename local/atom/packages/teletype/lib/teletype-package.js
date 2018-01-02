@@ -9,12 +9,14 @@ module.exports =
 class TeletypePackage {
   constructor (options) {
     const {
-      workspace, notificationManager, commandRegistry, tooltipManager, clipboard,
-      credentialCache, pubSubGateway, pusherKey, pusherOptions, baseURL, tetherDisconnectWindow
+      baseURL, clipboard, commandRegistry, credentialCache, notificationManager,
+      packageManager, pubSubGateway, pusherKey, pusherOptions,
+      tetherDisconnectWindow, tooltipManager, workspace
     } = options
 
     this.workspace = workspace
     this.notificationManager = notificationManager
+    this.packageManager = packageManager
     this.commandRegistry = commandRegistry
     this.tooltipManager = tooltipManager
     this.clipboard = clipboard
@@ -50,6 +52,9 @@ class TeletypePackage {
     this.subscriptions.add(this.commandRegistry.add('atom-workspace', {
       'teletype:join-portal': () => this.joinPortal()
     }))
+    this.subscriptions.add(this.commandRegistry.add('teletype-RemotePaneItem', {
+      'teletype:leave-portal': () => this.leavePortal()
+    }))
     this.subscriptions.add(this.commandRegistry.add('atom-workspace.teletype-Host', {
       'teletype:close-portal': () => this.closeHostPortal()
     }))
@@ -60,6 +65,8 @@ class TeletypePackage {
   }
 
   async deactivate () {
+    this.initializationError = null
+
     if (this.subscriptions) this.subscriptions.dispose() // Package is not activated in specs
     if (this.portalStatusBarIndicator) this.portalStatusBarIndicator.destroy()
 
@@ -101,6 +108,14 @@ class TeletypePackage {
     hostPortalBinding.close()
   }
 
+  async leavePortal () {
+    this.showPopover()
+
+    const manager = await this.getPortalBindingManager()
+    const guestPortalBinding = await manager.getActiveGuestPortalBinding()
+    guestPortalBinding.leave()
+  }
+
   async consumeStatusBar (statusBar) {
     const teletypeClient = await this.getClient()
     const portalBindingManager = await this.getPortalBindingManager()
@@ -116,7 +131,8 @@ class TeletypePackage {
       commandRegistry: this.commandRegistry,
       clipboard: this.clipboard,
       workspace: this.workspace,
-      notificationManager: this.notificationManager
+      notificationManager: this.notificationManager,
+      packageManager: this.packageManager
     })
 
     this.portalStatusBarIndicator.attach()
