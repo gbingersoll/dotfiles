@@ -1,5 +1,115 @@
 # Changelog
 
+## v0.11.2
+
+### General
+
+- Fixed indentation bug in outline view. (#176)
+- Fixed console scroll behavior where the console wouldn't allow the user to scroll while new messages were coming in.
+- Diagnostics popups are now scrollable, with a fixed maximum height.
+- Removed NODE_PATH override that was sometimes causing issues. (see #64)
+- Added a scoped setting to enable/disable signature help.
+
+### Debugger
+
+- Made the 'multi-line' tip in the debugger console more compact.
+- The debugger console now stays focused when the debugger hits a breakpoint.
+- Fixed duplicate debugger tabs when switching hostnames.
+- Added shortcut for the "Debugger" menu on Windows (`alt-d`).
+
+### Terminal
+
+- Clicking on absolute paths in the terminal now opens the file in Atom.
+- Fixed a bug where the terminal scrollbar would be unclickable.
+
+## v0.11.1
+
+- Fix atom-ide-debugger-native-gdb on systems with a different Node version from Atom.
+- Remove extra "Nuclide" menu item.
+
+## v0.11.0
+
+- `atom-ide-terminal` is now available!
+- Improve documentation for `atom-ide-debugger` usage and integrations.
+
+## v0.10.1
+
+- Fix atom-ide-debugger-* runtime path resolution.
+
+## v0.10.0
+
+### Debugging
+
+- `atom-ide-debugger` is now available! Install a debugger package to get started:
+  - https://atom.io/packages/atom-ide-debugger-node
+  - https://atom.io/packages/atom-ide-debugger-python
+  - https://atom.io/packages/atom-ide-debugger-native-gdb
+  - https://atom.io/packages/atom-ide-debugger-react-native
+  - https://atom.io/packages/atom-ide-debugger-ocaml
+  - Start debugging by adding a breakpoint in the gutter or via the "Debugger" menu.
+
+### Signature Help
+
+- Added a keyboard shortcut to trigger signature help (cmd/ctrl-shift-space).
+- The active parameter is now underlined (in addition to being bold)
+- Fixed vertical positioning of signature help datatips when they start to go off the screen.
+- Signature help should now be triggered when using autocomplete and/or copy+pasting.
+- Markdown in the signature should now be escaped.
+
+### Other
+
+- Errors from find references are now correctly surfaced.
+- Code from find references is now copyable.
+- Removed extra whitespace in diagnostic trace output.
+- Polished various details of the Console UI.
+- The "format on save" setting can now be controlled on a per-grammar basis.
+
+## v0.9.4
+
+- Fix console rendering bug
+
+## v0.9.3
+
+Fixed two regressions in Outline:
+
+- Restored icons for atom-languageclient providers.
+- Restored the ability to filter-on-type.
+
+## v0.9.2
+
+- Improve performance of outline rendering
+- Fix error when Diagnostics is unmounted (#169)
+- Don't show the Console's sources list without a source
+- Console documentation is now available at https://github.com/facebook-atom/atom-ide-ui/blob/master/docs/console.md!
+
+## v0.9.1
+
+This is a small release with the following highlight:
+
+- Resolves an issue where "Nuclide" would appear in the application menu. Instead, "Clear Console" has been moved to the Edit menu.
+
+## v0.8.1
+
+- URL fragments/queries are now supported in diagnostic messages (#159)
+- Fixed exception at startup with various third-party themes (#160)
+
+## v0.8.0
+
+- Added `atom-ide-console`! More information to come soon.
+- Nested Outline elements can now be collapsed.
+- Outline is now keyboard navigable (up/down to move, left/right to collapse/expand, '/' to filter).
+- Fixed duplicate datatips when hovering over gutter diagnostics.
+- Fixed bug with diagnostic selection.
+- Long-running find references and code format operations now bring up a busy signal tooltip.
+- Text editors retain focus after clicking on code actions (#152).
+- Fixed inability to deselect diagnostic messages (#143).
+
+## v0.7.2
+
+- Fixed "Failed to load resource" error in console (#100).
+- Update `marked` dependency to prevent security issues.
+- Prevent errors when having both `atom-ide-ui` and `nuclide` installed.
+
 ## v0.7.1
 
 - Datatips

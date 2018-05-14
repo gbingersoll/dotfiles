@@ -2,39 +2,39 @@
   "_args": [
     [
       {
-        "raw": "/private/var/folders/_m/3djk71m95h3c35ng1qdxmx180000gn/T/d-118226-41798-afyndx.y4dnk1q0k9/package.tgz",
+        "raw": "/private/var/folders/_m/3djk71m95h3c35ng1qdxmx180000gn/T/d-118414-9512-rmwosk.fgv9zoajor/package.tgz",
         "scope": null,
         "escapedName": null,
         "name": null,
-        "rawSpec": "/private/var/folders/_m/3djk71m95h3c35ng1qdxmx180000gn/T/d-118226-41798-afyndx.y4dnk1q0k9/package.tgz",
-        "spec": "/private/var/folders/_m/3djk71m95h3c35ng1qdxmx180000gn/T/d-118226-41798-afyndx.y4dnk1q0k9/package.tgz",
+        "rawSpec": "/private/var/folders/_m/3djk71m95h3c35ng1qdxmx180000gn/T/d-118414-9512-rmwosk.fgv9zoajor/package.tgz",
+        "spec": "/private/var/folders/_m/3djk71m95h3c35ng1qdxmx180000gn/T/d-118414-9512-rmwosk.fgv9zoajor/package.tgz",
         "type": "local"
       },
-      "/private/var/folders/_m/3djk71m95h3c35ng1qdxmx180000gn/T/apm-install-dir-118226-41798-tgrp4n.q6d5hcwhfr"
+      "/private/var/folders/_m/3djk71m95h3c35ng1qdxmx180000gn/T/apm-install-dir-118414-9512-k39pw5.v85k0ara4i"
     ]
   ],
-  "_from": "../d-118226-41798-afyndx.y4dnk1q0k9/package.tgz",
-  "_id": "sync-settings@0.8.5",
+  "_from": "../d-118414-9512-rmwosk.fgv9zoajor/package.tgz",
+  "_id": "sync-settings@0.8.6",
   "_inCache": true,
   "_location": "/sync-settings",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "/private/var/folders/_m/3djk71m95h3c35ng1qdxmx180000gn/T/d-118226-41798-afyndx.y4dnk1q0k9/package.tgz",
+    "raw": "/private/var/folders/_m/3djk71m95h3c35ng1qdxmx180000gn/T/d-118414-9512-rmwosk.fgv9zoajor/package.tgz",
     "scope": null,
     "escapedName": null,
     "name": null,
-    "rawSpec": "/private/var/folders/_m/3djk71m95h3c35ng1qdxmx180000gn/T/d-118226-41798-afyndx.y4dnk1q0k9/package.tgz",
-    "spec": "/private/var/folders/_m/3djk71m95h3c35ng1qdxmx180000gn/T/d-118226-41798-afyndx.y4dnk1q0k9/package.tgz",
+    "rawSpec": "/private/var/folders/_m/3djk71m95h3c35ng1qdxmx180000gn/T/d-118414-9512-rmwosk.fgv9zoajor/package.tgz",
+    "spec": "/private/var/folders/_m/3djk71m95h3c35ng1qdxmx180000gn/T/d-118414-9512-rmwosk.fgv9zoajor/package.tgz",
     "type": "local"
   },
   "_requiredBy": [
     "#USER"
   ],
-  "_resolved": "file:../d-118226-41798-afyndx.y4dnk1q0k9/package.tgz",
-  "_shasum": "8c1819a8bd117c3fd45c520ea154ee9ba2193c5c",
+  "_resolved": "file:../d-118414-9512-rmwosk.fgv9zoajor/package.tgz",
+  "_shasum": "558c77fa7cb9b99808902759a24d191df97bf280",
   "_shrinkwrap": null,
-  "_spec": "/private/var/folders/_m/3djk71m95h3c35ng1qdxmx180000gn/T/d-118226-41798-afyndx.y4dnk1q0k9/package.tgz",
-  "_where": "/private/var/folders/_m/3djk71m95h3c35ng1qdxmx180000gn/T/apm-install-dir-118226-41798-tgrp4n.q6d5hcwhfr",
+  "_spec": "/private/var/folders/_m/3djk71m95h3c35ng1qdxmx180000gn/T/d-118414-9512-rmwosk.fgv9zoajor/package.tgz",
+  "_where": "/private/var/folders/_m/3djk71m95h3c35ng1qdxmx180000gn/T/apm-install-dir-118414-9512-k39pw5.v85k0ara4i",
   "bugs": {
     "url": "https://github.com/atom-community/sync-settings/issues"
   },
@@ -75,5 +75,5 @@
     "type": "git",
     "url": "git+https://github.com/atom-community/sync-settings.git"
   },
-  "version": "0.8.5"
+  "version": "0.8.6"
 }

@@ -13,17 +13,28 @@
 /* eslint
   comma-dangle: [1, always-multiline],
   prefer-object-spread/prefer-object-spread: 0,
-  rulesdir/no-commonjs: 0,
+  nuclide-internal/no-commonjs: 0,
   */
 
 /**
- * Load the transpiler's require hook in development mode.
- * This also puts modules/ into the module resolution path.
+ * This check needs to happen before the transpiler hook is loaded -
+ * otherwise, this will conflict with Nuclide's transpiler hook :(
  */
+if (
+  !atom.packages.isPackageDisabled('nuclide') &&
+  atom.packages.getAvailablePackageNames().includes('nuclide')
+) {
+  const displayNuclideWarning = require('./display-nuclide-warning');
+  displayNuclideWarning();
+} else {
+  /**
+   * Load the transpiler's require hook in development mode.
+   * This also puts modules/ into the module resolution path.
+   */
+  const {__DEV__} = require('./modules/nuclide-node-transpiler/lib/env');
+  if (__DEV__) {
+    require('./modules/nuclide-node-transpiler');
+  }
 
-const {__DEV__} = require('./modules/nuclide-node-transpiler/lib/env');
-if (__DEV__) {
-  require('./modules/nuclide-node-transpiler');
+  module.exports = require('./index');
 }
-
-module.exports = require('./index');

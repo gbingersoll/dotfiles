@@ -162,7 +162,7 @@
       }
     }
 
-    &-portal-id {
+    &-portal-url {
       display: flex;
       flex-direction: row;
       margin-bottom: 5px;
@@ -233,6 +233,45 @@
   .octicon(mark-github, 40px);
 }
 
+.JoinViaExternalAppDialog {
+  padding: @component-padding;
+
+  &-cancel {
+    position: absolute;
+    padding: @component-padding;
+    top: 0;
+    right: 0;
+    text-align: right;
+    &::before {
+      margin-right: 0;
+    }
+  }
+
+  &-uri {
+    padding: @component-padding/2 @component-padding;
+    color: @text-color-highlight;
+    border: 1px solid @base-border-color;
+    border-radius: @component-border-radius;
+    background-color: @background-color-highlight;
+  }
+
+  &-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .input-label {
+    margin-left: 2em;
+    margin-right: 3em;
+  }
+
+  .input-checkbox {
+    margin-left: -2em;
+    margin-right: .5em;
+  }
+}
+
 .JoinPortalComponent--no-prompt,
 .JoinPortalComponent--prompt
 {
@@ -285,68 +324,6 @@
   opacity: 1;
 }
 
-.cursor.ParticipantCursor {
-  &--site-1 {
-    border-left-color: @ui-site-color-1;
-  }
-
-  &--site-2 {
-    border-left-color: @ui-site-color-2;
-  }
-
-  &--site-3 {
-    border-left-color: @ui-site-color-3;
-  }
-
-  &--site-4 {
-    border-left-color: @ui-site-color-4;
-  }
-
-  &--site-5 {
-    border-left-color: @ui-site-color-5;
-  }
-
-  &--site-6 {
-    border-left-color: spin(@ui-site-color-1, 25);
-  }
-
-  &--site-7 {
-    border-left-color: spin(@ui-site-color-2, 25);
-  }
-
-  &--site-8 {
-    border-left-color: spin(@ui-site-color-3, 25);
-  }
-
-  &--site-9 {
-    border-left-color: spin(@ui-site-color-4, 25);
-  }
-
-  &--site-10 {
-    border-left-color: spin(@ui-site-color-5, 25);
-  }
-
-  &--site-11 {
-    border-left-color: spin(@ui-site-color-1, 65);
-  }
-
-  &--site-12 {
-    border-left-color: spin(@ui-site-color-2, 65);
-  }
-
-  &--site-13 {
-    border-left-color: spin(@ui-site-color-3, 65);
-  }
-
-  &--site-14 {
-    border-left-color: spin(@ui-site-color-4, 65);
-  }
-
-  &--site-15 {
-    border-left-color: spin(@ui-site-color-5, 65);
-  }
-}
-
 .SitePositionsComponent {
   @corner-margin: @component-padding * 1.5;
   @avatar-margin: @component-padding / 2;
@@ -362,15 +339,20 @@
   right: @corner-margin;
   bottom: @corner-margin;
   overflow: hidden;
+  pointer-events: none;
 
   img {
     cursor: pointer;
     height: @avatar-size;
+    border: 2px solid transparent;
     border-radius: 50%
   }
 
   .SitePositionsComponent-site {
     margin-left: @avatar-margin;
+    pointer-events: auto;
+    border: solid 2px transparent;
+    border-radius: 50%;
 
     &.viewing-non-portal-item {
       opacity: 0.5;
@@ -378,19 +360,21 @@
 
     .icon-link {
       position: absolute;
-      margin-left: 24px;
-      margin-top: 24px;
+      margin-left: 26px;
+      margin-top: 26px;
       color: @text-color-info;
       pointer-events: none;
 
       &::before {
-        z-index: 1;
+        position: relative;
+        z-index: 2;
       }
 
       // background cover
       &::after {
         content: "";
         position: absolute;
+        z-index: 1;
         left: -2px;
         top: 4px;
         width: 15px;
@@ -400,6 +384,26 @@
       }
     }
   }
+}
+
+// Site colors
+.cursor.ParticipantCursor, // cursor
+.SitePositionsComponent-site.color  { // avatar
+  &--site-1  { border-color: @ui-site-color-1; }
+  &--site-2  { border-color: @ui-site-color-2; }
+  &--site-3  { border-color: @ui-site-color-3; }
+  &--site-4  { border-color: @ui-site-color-4; }
+  &--site-5  { border-color: @ui-site-color-5; }
+  &--site-6  { border-color: spin(@ui-site-color-1, 25); }
+  &--site-7  { border-color: spin(@ui-site-color-2, 25); }
+  &--site-8  { border-color: spin(@ui-site-color-3, 25); }
+  &--site-9  { border-color: spin(@ui-site-color-4, 25); }
+  &--site-10 { border-color: spin(@ui-site-color-5, 25); }
+  &--site-11 { border-color: spin(@ui-site-color-1, 65); }
+  &--site-12 { border-color: spin(@ui-site-color-2, 65); }
+  &--site-13 { border-color: spin(@ui-site-color-3, 65); }
+  &--site-14 { border-color: spin(@ui-site-color-4, 65); }
+  &--site-15 { border-color: spin(@ui-site-color-5, 65); }
 }
 
 .PackageOutdatedComponent, .PackageInitializationErrorComponent {

@@ -249,9 +249,48 @@ function trimBufferRange (editor, range) {
 // -------------------------
 // Set bufferRow with keeping column and goalColumn
 function setBufferRow (cursor, row, options) {
-  const column = cursor.goalColumn != null ? cursor.goalColumn : cursor.getBufferColumn()
-  cursor.setBufferPosition([row, column], options)
-  cursor.goalColumn = column
+  const editor = cursor.editor
+  if (editor.softTabs) {
+    const column = cursor.goalColumn != null ? cursor.goalColumn : cursor.getBufferColumn()
+    cursor.setBufferPosition([row, column], options)
+    cursor.goalColumn = column
+  } else {
+    const column =
+      cursor.goalColumn != null
+        ? cursor.goalColumn
+        : translateColumnOnHardTabEditor(editor, cursor.getBufferRow(), cursor.getBufferColumn(), true)
+
+    cursor.setBufferPosition([row, translateColumnOnHardTabEditor(editor, row, column, false)], options)
+    cursor.goalColumn = column
+  }
+}
+
+function translateColumnOnHardTabEditor (editor, row, column, expandTab) {
+  const chars = editor.lineTextForBufferRow(row).slice(0, column)
+
+  if (column === 0 || column === Infinity || !chars.includes('\t')) {
+    return column
+  }
+
+  let newColumn = 0
+  const tabLength = editor.getTabLength()
+  const charLength = char => (char === '\t' ? tabLength : 1)
+  if (expandTab) {
+    for (const char of chars) {
+      newColumn += charLength(char)
+    }
+  } else {
+    let traversedColumn = 0
+    for (const char of chars) {
+      newColumn++
+      traversedColumn += charLength(char)
+      if (traversedColumn >= column) {
+        if (traversedColumn > column) newColumn--
+        break
+      }
+    }
+  }
+  return newColumn
 }
 
 function setBufferColumn (cursor, column) {
@@ -323,6 +362,11 @@ function getCodeFoldRanges ({tokenizedBuffer}) {
 // Used in vmp-jasmine-increase-focus
 function getCodeFoldRangesContainesRow (editor, bufferRow) {
   return getCodeFoldRanges(editor).filter(range => range.start.row <= bufferRow && bufferRow <= range.end.row)
+}
+
+function getClosestFoldRangeContainsRow (editor, bufferRow) {
+  const ranges = getCodeFoldRanges(editor).filter(range => range.start.row <= bufferRow && bufferRow <= range.end.row)
+  return getLast(ranges)
 }
 
 function getFoldInfoByKind (editor) {
@@ -1238,6 +1282,7 @@ module.exports = {
   getVimLastBufferRow,
   getVimLastScreenRow,
   setBufferRow,
+  translateColumnOnHardTabEditor,
   setBufferColumn,
   moveCursorLeft,
   moveCursorRight,
@@ -1252,6 +1297,7 @@ module.exports = {
   isEmptyRow,
   getCodeFoldRanges,
   getCodeFoldRangesContainesRow,
+  getClosestFoldRangeContainsRow,
   getFoldInfoByKind,
   getBufferRangeForRowRange,
   trimBufferRange,
