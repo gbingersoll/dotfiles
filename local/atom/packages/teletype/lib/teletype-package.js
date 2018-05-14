@@ -4,14 +4,15 @@ const PortalBindingManager = require('./portal-binding-manager')
 const PortalStatusBarIndicator = require('./portal-status-bar-indicator')
 const AuthenticationProvider = require('./authentication-provider')
 const CredentialCache = require('./credential-cache')
+const TeletypeService = require('./teletype-service')
 
 module.exports =
 class TeletypePackage {
   constructor (options) {
     const {
-      baseURL, clipboard, commandRegistry, credentialCache, notificationManager,
-      packageManager, pubSubGateway, pusherKey, pusherOptions,
-      tetherDisconnectWindow, tooltipManager, workspace
+      baseURL, clipboard, commandRegistry, credentialCache, getAtomVersion,
+      notificationManager, packageManager, pubSubGateway, pusherKey,
+      pusherOptions, tetherDisconnectWindow, tooltipManager, workspace
     } = options
 
     this.workspace = workspace
@@ -24,6 +25,7 @@ class TeletypePackage {
     this.pusherKey = pusherKey
     this.pusherOptions = pusherOptions
     this.baseURL = baseURL
+    this.getAtomVersion = getAtomVersion
     this.tetherDisconnectWindow = tetherDisconnectWindow
     this.credentialCache = credentialCache || new CredentialCache()
     this.client = new TeletypeClient({
@@ -35,13 +37,12 @@ class TeletypePackage {
     })
     this.client.onConnectionError(this.handleConnectionError.bind(this))
     this.portalBindingManagerPromise = null
+    this.subscriptions = new CompositeDisposable()
   }
 
   activate () {
     console.log('teletype: Using pusher key:', this.pusherKey)
     console.log('teletype: Using base URL:', this.baseURL)
-
-    this.subscriptions = new CompositeDisposable()
 
     this.subscriptions.add(this.commandRegistry.add('atom-workspace.teletype-Authenticated', {
       'teletype:sign-out': () => this.signOut()
@@ -62,12 +63,15 @@ class TeletypePackage {
     // Initiate sign-in, which will continue asynchronously, since we don't want
     // to block here.
     this.signInUsingSavedToken()
+    this.registerRemoteEditorOpener()
   }
 
   async deactivate () {
     this.initializationError = null
 
-    if (this.subscriptions) this.subscriptions.dispose() // Package is not activated in specs
+    this.subscriptions.dispose()
+    this.subscriptions = new CompositeDisposable()
+
     if (this.portalStatusBarIndicator) this.portalStatusBarIndicator.destroy()
 
     if (this.portalBindingManagerPromise) {
@@ -116,6 +120,10 @@ class TeletypePackage {
     guestPortalBinding.leave()
   }
 
+  provideTeletype () {
+    return new TeletypeService({teletypePackage: this})
+  }
+
   async consumeStatusBar (statusBar) {
     const teletypeClient = await this.getClient()
     const portalBindingManager = await this.getPortalBindingManager()
@@ -132,10 +140,28 @@ class TeletypePackage {
       clipboard: this.clipboard,
       workspace: this.workspace,
       notificationManager: this.notificationManager,
-      packageManager: this.packageManager
+      packageManager: this.packageManager,
+      getAtomVersion: this.getAtomVersion
     })
 
     this.portalStatusBarIndicator.attach()
+  }
+
+  registerRemoteEditorOpener () {
+    this.subscriptions.add(this.workspace.addOpener((uri) => {
+      if (uri.startsWith('atom://teletype/')) {
+        return this.getRemoteEditorForURI(uri)
+      } else {
+        return null
+      }
+    }))
+  }
+
+  async getRemoteEditorForURI (uri) {
+    const portalBindingManager = await this.getPortalBindingManager()
+    if (portalBindingManager && await this.isSignedIn()) {
+      return portalBindingManager.getRemoteEditorForURI(uri)
+    }
   }
 
   async signInUsingSavedToken () {
@@ -240,10 +266,6 @@ class TeletypePackage {
         this.isClientOutdated = true
       } else {
         this.initializationError = error
-        this.notificationManager.addError('Failed to initialize the teletype package', {
-          description: `Establishing a teletype connection failed with error: <code>${error.message}</code>`,
-          dismissable: true
-        })
       }
     }
   }

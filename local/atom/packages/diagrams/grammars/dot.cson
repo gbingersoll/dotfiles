@@ -1,0 +1,44 @@
+# Created this using the following tutorial:
+# https://www.sitepoint.com/how-to-write-a-syntax-highlighting-package-for-atom/
+# Also look at the following for the classes that TextMate standardized in order
+# to use ones that tap into Atom's syntax themes
+# https://manual.macromates.com/en/language_grammars.html#naming_conventions
+"scopeName": "source.dot"
+"name": "Dot Rules"
+"fileTypes": [ "dot" ]
+"patterns": [
+    {
+        "match": "#.*",
+        "name": "comment.line"
+    },
+    {
+        "match": "digraph",
+        "name": "keyword.control"
+    },
+    {
+        "match": "(participant) (.*)",
+        'captures':
+            '1':
+                'name': 'keyword.control'
+            '2':
+                'name': 'entity.name.tag'
+    },
+    {
+        "match": "{|}",
+        "name": "entity.name.tag"
+    },
+    {
+        "match": "(->)|(-->)",
+        'name': 'keyword.control'
+    },
+    {
+        "match": "(Note)(.*):(.*)",
+        'captures':
+            '1':
+                'name': 'keyword.control'
+            '2':
+                'name': 'keyword.operator'
+            '3':
+                'name': 'string.unquoted'
+    }
+]

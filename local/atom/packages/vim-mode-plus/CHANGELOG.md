@@ -1,3 +1,110 @@
+# 1.31.1:
+- Fix: Now properly disable `readOnly` state on package deactivation.
+  - Condition
+    - When user enabled `autoDisableInputMethodWhenLeavingInsertMode`
+    - Then deactivate `vim-mode-plus` package.
+  - editor's hiddenInput remain `readOnly = true` which make editor un-editable.
+
+# 1.31.0:
+- New: Introduce new configuration to affect **word** finding in motion and text-object.
+  - Purpose
+    - When finding word in motions(`w`, `e` etc) and text-objet(`i w` etc), vmp use nonWordCharacters which vary from grammars.
+    - Some grammar treat `-` as non-word, but some are not, this inconsistency is a bit confusing.
+    - So user can avoid this inconsistencies by enabling this new setting.
+  - `useLanguageIndependentNonWordCharacters`: Enable this to always use same `nonWordCharacters` regardless of grammar.
+  - `languageIndependentNonWordCharacters`: This value is used only when `useLanguageIndependentNonWordCharacters` was enabled.
+    - Default value is borrowed from `DEFAULT_NON_WORD_CHARACTERS` in `text-editor.js`.
+
+# 1.30.1:
+- Improve: `deMaximize` maximized state also on `atom.workspace.onDidAddPaneItem` timing.
+
+# 1.30.0:
+- New, Experiment: `autoDisableInputMethodWhenLeavingInsertMode` config to auto-disable IME when leaving `insert-mode`.
+  - Default `false`.
+  - Once this feature was brought by PR#151 then reverted because of unfixable BUG.
+  - Now retrying to bring same feature in different approach
+    - setting `readOnly` attribute to `false` than setting `input.type = "password"`.
+  - Credit: Borrowed whole idea from @frapples's `vim-mode-plus-patch-switch-ime` package. Thanks @frapples!!
+
+# 1.29.0:
+- New: `hideCommandsFromCommandPalette` config which hide commands from command-palette when set to `true` #1033, #1034
+  - Default `false` to to make it compatible with older version.
+  - This feature is once implemented in #943 but reverted before releasing it. Because I find no big perf gain by this feature.
+  - But this time I changed mind, reducing noise when searching palette is good idea.
+- New, Support: Add support helper command. #1037
+  - To let user paste clipped info when they open issue.
+  - `vim-mode-plus:clip-debug-info`, `vim-mode-plus:clip-debug-info-with-package-info`
+  - These command write collected debug info to clipboard with the form of foldable(by `detail` tag) to not mess issue board.
+
+# 1.28.1:
+- Diff: [here](https://github.com/t9md/atom-vim-mode-plus/compare/v1.28.0...v1.28.1)
+- FIX: Add `altgraph` using version of keymap to to workaround atom-keymap issue @lydell #661, #1031
+  - In many keyboard layouts, such as German, French and Swedish, some characters have to be typed using the AltGr key.
+  - For example, `i {` keymap doesn't work for these keyboard, since to type `{`, they need to type `altgraph {`.
+  - But atom-keymap doesn't treat `altgraph` as modifier, so it immediately terminate pendingstate when it see `altgraph`.
+  - To workaround this issue, we defined `i altgraph {` keymap. other keymap is also defined in same manner.
+  - This fix is temporal workaround should be removed after atom-keymap solve this `altgraph` issue.
+
+# 1.28.0:
+- Diff: [here](https://github.com/t9md/atom-vim-mode-plus/compare/v1.27.0...v1.28.0)
+- Internal: Code cleanup
+- Improve: `ChangeOrder` family operators now work for non-separated word
+  - Previously, `ChangeOrder` family operators(e.g. `reverse`) cannot reverse characters in word.
+  - But now it can reverse, rotate, sort... characters when target have not space or comma separated.
+    - Old: Can change only order of separated text(space or comma or new line char).
+      - reverse: `a b c` get `c b a`
+      - reverse: `a, b, c` get `c, b, a`
+      - reverse: `abc` get `abc`(**do nothing**)
+    - New: Can change order of non separated text.
+      - reverse: `a b c` get `c b a`
+      - reverse: `a, b, c` get `c, b, a`
+      - reverse: `abc` get `cba`(**this is new**)
+    - Affect child of `ChangeOrder` operators bellow.
+      - `Reverse`, `ReverseInnerAnyPair`
+      - `Rotate`, `RotateBackwards`,
+      - `RotateArgumentsOfInnerPair`, `RotateArgumentsBackwardsOfInnerPair`,
+      - `Sort`, `SortCaseInsensitively`, `SortByNumber`,
+- New: Support activating `replace-mode` mode from `insert-mode`.
+  - Previously it worked, but have some odd behavior, now officially supported.
+  - New `toggle-replace-mode` misc command by which you can shift mode between `insert` and `insert.replace`. #1026
+  - This command works only in `insert-mode`, use this to quickly switch to `replace-mode` then back to `insert-mode`.
+  - No keymap by default, here is example keymap.
+    ```coffeescript
+    'atom-text-editor.vim-mode-plus.insert-mode':
+      'ctrl-cmd-r': 'vim-mode-plus:toggle-replace-mode'
+    ```
+- Internal: Introduce `operationStack.runNext` to queue operations to run next after current operation finished.
+- Breaking, Improve: Invert rotation order for following operators(since it's counter-intuitive)
+  - `Rotate`, `RotateBackwards`, `RotateArgumentsOfInnerPair`, `RotateArgumentsBackwardsOfInnerPair`
+
+# 1.27.0:
+- Diff: [here](https://github.com/t9md/atom-vim-mode-plus/compare/v1.26.0...v1.27.0)
+- New, Experimental: `change-subword-occurrence` command for direct keymap use.
+  - One-key version of `c O`.
+- Apply `standard` linting/formatting. As a result fixed lots of minor variable scope related bugs.
+
+# 1.26.0:
+- Diff: [here](https://github.com/t9md/atom-vim-mode-plus/compare/v1.25.1...v1.26.0)
+- Fix: `confirmThresholdOnOccurrenceOperation` now properly applied to subword occurrence operation like `g O`, `c O` etc.
+  - Previously `confirmThresholdOnOccurrenceOperation` check was just bypassed for subword occurrence.
+- New, Experimental: Replace text via diff for `TransformString` operators.
+  - Currently this new way of text mutation is used by `trim-string`(`g |`) and `surround` family(disabled by default).
+  - To enable it for `surround` family enable `replaceByDiffOnSurround` new configuration.
+  - How different from normal replace?
+    - Scenario: `foo` - surround -> `(foo)` - change surround -> `{foo}` - delete surround -> `foo`
+    - Normal replace:
+      - All text transformation is done by replacing old text with new text.
+    - Replace by diff:
+      - All text transformation is done inserting/deleting minimum amount of text.
+      - `surround`: adding `(` and `)`,
+      - `change-surround`: replace `(` to `{`, `)` to `}`
+      - `delete-surround`: remove `{` and `}`
+  - Pros vs Cons
+    - Pros: Cleaner undo/redo highlight, more accurate cursor staying by using marker to track original position.
+    - Cons: When redoing/undoing `delete-surround`, `change-surround` happens at off-screen position, user doesn't see flash highlight
+      - Because inner text of surround pair is not mutated(so not flashed), This is most significant disadvantage.
+- Internal: Simplify commands registration for vimState bound command in `main.js`.
+
 # 1.25.1:
 - Diff: [here](https://github.com/t9md/atom-vim-mode-plus/compare/v1.25.0...v1.25.1)
 - Improve: Avoid centering editor-in-editor on `vim-mode-plus:maximize-pane` #1014

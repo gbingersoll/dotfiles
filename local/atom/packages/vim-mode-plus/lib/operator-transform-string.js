@@ -1,10 +1,10 @@
-"use babel"
+'use babel'
 
-const changeCase = require("change-case")
+const changeCase = require('change-case')
 let selectList
 
-const {BufferedProcess, Range} = require("atom")
-const {Operator} = require("./operator")
+const {BufferedProcess} = require('atom')
+const {Operator} = require('./operator')
 
 // TransformString
 // ================================
@@ -12,34 +12,22 @@ class TransformString extends Operator {
   static command = false
   static stringTransformers = []
   trackChange = true
-  stayOptionName = "stayOnTransformString"
+  stayOptionName = 'stayOnTransformString'
   autoIndent = false
   autoIndentNewline = false
-  autoIndentAfterInsertText = false
+  replaceByDiff = false
 
-  static registerToSelectList() {
+  static registerToSelectList () {
     this.stringTransformers.push(this)
   }
 
-  mutateSelection(selection) {
+  mutateSelection (selection) {
     const text = this.getNewText(selection.getText(), selection)
     if (text) {
-      let startRowIndentLevel
-      if (this.autoIndentAfterInsertText) {
-        const startRow = selection.getBufferRange().start.row
-        startRowIndentLevel = this.editor.indentationForBufferRow(startRow)
-      }
-      let range = selection.insertText(text, {autoIndent: this.autoIndent, autoIndentNewline: this.autoIndentNewline})
-
-      if (this.autoIndentAfterInsertText) {
-        // Currently used by SplitArguments and Surround( linewise target only )
-        if (this.target.isLinewise()) {
-          range = range.translate([0, 0], [-1, 0])
-        }
-        this.editor.setIndentationForBufferRow(range.start.row, startRowIndentLevel)
-        this.editor.setIndentationForBufferRow(range.end.row, startRowIndentLevel)
-        // Adjust inner range, end.row is already( if needed ) translated so no need to re-translate.
-        this.utils.adjustIndentWithKeepingLayout(this.editor, range.translate([1, 0], [0, 0]))
+      if (this.replaceByDiff) {
+        this.replaceTextInRangeViaDiff(selection.getBufferRange(), text)
+      } else {
+        selection.insertText(text, {autoIndent: this.autoIndent, autoIndentNewline: this.autoIndentNewline})
       }
     }
   }
@@ -47,7 +35,7 @@ class TransformString extends Operator {
 
 class ChangeCase extends TransformString {
   static command = false
-  getNewText(text) {
+  getNewText (text) {
     const functionName = this.functionName || changeCase.lowerCaseFirst(this.name)
     // HACK: IMO `changeCase` does aggressive transformation(remove punctuation, remove white spaces...)
     // make changeCase less aggressive by targeting narrower charset.
@@ -58,23 +46,23 @@ class ChangeCase extends TransformString {
 
 class NoCase extends ChangeCase {}
 class DotCase extends ChangeCase {
-  static displayNameSuffix = "."
+  static displayNameSuffix = '.'
 }
 class SwapCase extends ChangeCase {
-  static displayNameSuffix = "~"
+  static displayNameSuffix = '~'
 }
 class PathCase extends ChangeCase {
-  static displayNameSuffix = "/"
+  static displayNameSuffix = '/'
 }
 class UpperCase extends ChangeCase {}
 class LowerCase extends ChangeCase {}
 class CamelCase extends ChangeCase {}
 class SnakeCase extends ChangeCase {
-  static displayNameSuffix = "_"
+  static displayNameSuffix = '_'
 }
 class TitleCase extends ChangeCase {}
 class ParamCase extends ChangeCase {
-  static displayNameSuffix = "-"
+  static displayNameSuffix = '-'
 }
 class HeaderCase extends ChangeCase {}
 class PascalCase extends ChangeCase {}
@@ -84,35 +72,35 @@ class UpperCaseFirst extends ChangeCase {}
 class LowerCaseFirst extends ChangeCase {}
 
 class DashCase extends ChangeCase {
-  static displayNameSuffix = "-"
-  functionName = "paramCase"
+  static displayNameSuffix = '-'
+  functionName = 'paramCase'
 }
 class ToggleCase extends ChangeCase {
-  static displayNameSuffix = "~"
-  functionName = "swapCase"
+  static displayNameSuffix = '~'
+  functionName = 'swapCase'
 }
 
 class ToggleCaseAndMoveRight extends ChangeCase {
-  functionName = "swapCase"
+  functionName = 'swapCase'
   flashTarget = false
   restorePositions = false
-  target = "MoveRight"
+  target = 'MoveRight'
 }
 
 // Replace
 // -------------------------
 class Replace extends TransformString {
-  flashCheckpoint = "did-select-occurrence"
+  flashCheckpoint = 'did-select-occurrence'
   autoIndentNewline = true
   readInputAfterSelect = true
 
-  getNewText(text) {
-    if (this.target.name === "MoveRightBufferColumn" && text.length !== this.getCount()) {
+  getNewText (text) {
+    if (this.target.name === 'MoveRightBufferColumn' && text.length !== this.getCount()) {
       return
     }
 
-    const input = this.input || "\n"
-    if (input === "\n") {
+    const input = this.input || '\n'
+    if (input === '\n') {
       this.restorePositions = false
     }
     return text.replace(/./g, input)
@@ -120,46 +108,49 @@ class Replace extends TransformString {
 }
 
 class ReplaceCharacter extends Replace {
-  target = "MoveRightBufferColumn"
+  target = 'MoveRightBufferColumn'
 }
 
 // -------------------------
 // DUP meaning with SplitString need consolidate.
 class SplitByCharacter extends TransformString {
-  getNewText(text) {
-    return text.split("").join(" ")
+  getNewText (text) {
+    return text.split('').join(' ')
   }
 }
 
 class EncodeUriComponent extends TransformString {
-  static displayNameSuffix = "%"
-  getNewText(text) {
+  static displayNameSuffix = '%'
+  getNewText (text) {
     return encodeURIComponent(text)
   }
 }
 
 class DecodeUriComponent extends TransformString {
-  static displayNameSuffix = "%%"
-  getNewText(text) {
+  static displayNameSuffix = '%%'
+  getNewText (text) {
     return decodeURIComponent(text)
   }
 }
 
 class TrimString extends TransformString {
-  getNewText(text) {
+  stayByMarker = true
+  replaceByDiff = true
+
+  getNewText (text) {
     return text.trim()
   }
 }
 
 class CompactSpaces extends TransformString {
-  getNewText(text) {
+  getNewText (text) {
     if (text.match(/^[ ]+$/)) {
-      return " "
+      return ' '
     } else {
       // Don't compact for leading and trailing white spaces.
       const regex = /^(\s*)(.*?)(\s*)$/gm
       return text.replace(regex, (m, leading, middle, trailing) => {
-        return leading + middle.split(/[ \t]+/).join(" ") + trailing
+        return leading + middle.split(/[ \t]+/).join(' ') + trailing
       })
     }
   }
@@ -167,9 +158,9 @@ class CompactSpaces extends TransformString {
 
 class AlignOccurrence extends TransformString {
   occurrence = true
-  whichToPad = "auto"
+  whichToPad = 'auto'
 
-  getSelectionTaker() {
+  getSelectionTaker () {
     const selectionsByRow = {}
     for (const selection of this.editor.getSelectionsOrderedByBufferPosition()) {
       const row = selection.getBufferRange().start.row
@@ -180,24 +171,24 @@ class AlignOccurrence extends TransformString {
     return () => allRows.map(row => selectionsByRow[row].shift()).filter(s => s)
   }
 
-  getWichToPadForText(text) {
-    if (this.whichToPad !== "auto") return this.whichToPad
+  getWichToPadForText (text) {
+    if (this.whichToPad !== 'auto') return this.whichToPad
 
-    if (/^\s*[=\|]\s*$/.test(text)) {
+    if (/^\s*[=|]\s*$/.test(text)) {
       // Asignment(=) and `|`(markdown-table separator)
-      return "start"
+      return 'start'
     } else if (/^\s*,\s*$/.test(text)) {
       // Arguments
-      return "end"
+      return 'end'
     } else if (/\W$/.test(text)) {
       // ends with non-word-char
-      return "end"
+      return 'end'
     } else {
-      return "start"
+      return 'start'
     }
   }
 
-  calculatePadding() {
+  calculatePadding () {
     const totalAmountOfPaddingByRow = {}
     const columnForSelection = selection => {
       const which = this.getWichToPadForText(selection.getText())
@@ -219,7 +210,7 @@ class AlignOccurrence extends TransformString {
     }
   }
 
-  execute() {
+  execute () {
     this.amountOfPaddingBySelection = new Map()
     this.onDidSelectTarget(() => {
       this.calculatePadding()
@@ -227,68 +218,68 @@ class AlignOccurrence extends TransformString {
     super.execute()
   }
 
-  getNewText(text, selection) {
-    const padding = " ".repeat(this.amountOfPaddingBySelection.get(selection))
+  getNewText (text, selection) {
+    const padding = ' '.repeat(this.amountOfPaddingBySelection.get(selection))
     const whichToPad = this.getWichToPadForText(selection.getText())
-    return whichToPad === "start" ? padding + text : text + padding
+    return whichToPad === 'start' ? padding + text : text + padding
   }
 }
 
 class AlignOccurrenceByPadLeft extends AlignOccurrence {
-  whichToPad = "start"
+  whichToPad = 'start'
 }
 
 class AlignOccurrenceByPadRight extends AlignOccurrence {
-  whichToPad = "end"
+  whichToPad = 'end'
 }
 
 class RemoveLeadingWhiteSpaces extends TransformString {
-  wise = "linewise"
-  getNewText(text, selection) {
+  wise = 'linewise'
+  getNewText (text, selection) {
     const trimLeft = text => text.trimLeft()
     return (
       this.utils
         .splitTextByNewLine(text)
         .map(trimLeft)
-        .join("\n") + "\n"
+        .join('\n') + '\n'
     )
   }
 }
 
 class ConvertToSoftTab extends TransformString {
-  static displayName = "Soft Tab"
-  wise = "linewise"
+  static displayName = 'Soft Tab'
+  wise = 'linewise'
 
-  mutateSelection(selection) {
-    this.scanEditor("forward", /\t/g, {scanRange: selection.getBufferRange()}, ({range, replace}) => {
+  mutateSelection (selection) {
+    this.scanEditor('forward', /\t/g, {scanRange: selection.getBufferRange()}, ({range, replace}) => {
       // Replace \t to spaces which length is vary depending on tabStop and tabLenght
       // So we directly consult it's screen representing length.
       const length = this.editor.screenRangeForBufferRange(range).getExtent().column
-      replace(" ".repeat(length))
+      replace(' '.repeat(length))
     })
   }
 }
 
 class ConvertToHardTab extends TransformString {
-  static displayName = "Hard Tab"
+  static displayName = 'Hard Tab'
 
-  mutateSelection(selection) {
+  mutateSelection (selection) {
     const tabLength = this.editor.getTabLength()
-    this.scanEditor("forward", /[ \t]+/g, {scanRange: selection.getBufferRange()}, ({range, replace}) => {
+    this.scanEditor('forward', /[ \t]+/g, {scanRange: selection.getBufferRange()}, ({range, replace}) => {
       const {start, end} = this.editor.screenRangeForBufferRange(range)
       let startColumn = start.column
       const endColumn = end.column
 
       // We can't naively replace spaces to tab, we have to consider valid tabStop column
       // If nextTabStop column exceeds replacable range, we pad with spaces.
-      let newText = ""
+      let newText = ''
       while (true) {
         const remainder = startColumn % tabLength
         const nextTabStop = startColumn + (remainder === 0 ? tabLength : remainder)
         if (nextTabStop > endColumn) {
-          newText += " ".repeat(endColumn - startColumn)
+          newText += ' '.repeat(endColumn - startColumn)
         } else {
-          newText += "\t"
+          newText += '\t'
         }
         startColumn = nextTabStop
         if (startColumn >= endColumn) {
@@ -305,21 +296,21 @@ class ConvertToHardTab extends TransformString {
 class TransformStringByExternalCommand extends TransformString {
   static command = false
   autoIndent = true
-  command = "" // e.g. command: 'sort'
+  command = '' // e.g. command: 'sort'
   args = [] // e.g args: ['-rn']
 
   // NOTE: Unlike other class, first arg is `stdout` of external commands.
-  getNewText(text, selection) {
+  getNewText (text, selection) {
     return text || selection.getText()
   }
-  getCommand(selection) {
+  getCommand (selection) {
     return {command: this.command, args: this.args}
   }
-  getStdin(selection) {
+  getStdin (selection) {
     return selection.getText()
   }
 
-  async execute() {
+  async execute () {
     this.preSelect()
 
     if (this.selectTarget()) {
@@ -330,14 +321,14 @@ class TransformStringByExternalCommand extends TransformString {
         const stdout = await this.runExternalCommand({command, args, stdin: this.getStdin(selection)})
         selection.insertText(this.getNewText(stdout, selection), {autoIndent: this.autoIndent})
       }
-      this.mutationManager.setCheckpoint("did-finish")
+      this.mutationManager.setCheckpoint('did-finish')
       this.restoreCursorPositionsIfNecessary()
     }
     this.postMutate()
   }
 
-  runExternalCommand(options) {
-    let output = ""
+  runExternalCommand (options) {
+    let output = ''
     options.stdout = data => (output += data)
     const exitPromise = new Promise(resolve => {
       options.exit = () => resolve(output)
@@ -347,7 +338,7 @@ class TransformStringByExternalCommand extends TransformString {
     const bufferedProcess = new BufferedProcess(options)
     bufferedProcess.onWillThrowError(({error, handle}) => {
       // Suppress command not found error intentionally.
-      if (error.code === "ENOENT" && error.syscall.indexOf("spawn") === 0) {
+      if (error.code === 'ENOENT' && error.syscall.indexOf('spawn') === 0) {
         console.log(`${this.getCommandName()}: Failed to spawn command ${error.path}.`)
         handle()
       }
@@ -364,63 +355,59 @@ class TransformStringByExternalCommand extends TransformString {
 
 // -------------------------
 class TransformStringBySelectList extends TransformString {
-  isReady() {
-    // This command is just gate to execute another operator.
-    // So never get ready and never be executed.
-    return false
-  }
+  target = 'Empty'
+  recordable = false
 
-  initialize() {
-    if (!selectList) selectList = new (require("./select-list"))()
-    selectList.show({
-      items: this.constructor.getSelectListItems(),
-      onCancel: () => this.cancelOperation(),
-      onConfirm: item => {
-        this.vimState.reset()
-        this.vimState.operationStack.run(item.klass, {target: this.target})
-      },
-    })
-  }
-
-  static getSelectListItems() {
+  static getSelectListItems () {
     if (!this.selectListItems) {
       this.selectListItems = this.stringTransformers.map(klass => {
-        const suffix = klass.hasOwnProperty("displayNameSuffix") ? " " + klass.displayNameSuffix : ""
+        const suffix = klass.hasOwnProperty('displayNameSuffix') ? ' ' + klass.displayNameSuffix : ''
 
         return {
           klass: klass,
-          displayName: klass.hasOwnProperty("displayName")
+          displayName: klass.hasOwnProperty('displayName')
             ? klass.displayName + suffix
-            : this._.humanizeEventName(this._.dasherize(klass.name)) + suffix,
+            : this._.humanizeEventName(this._.dasherize(klass.name)) + suffix
         }
       })
     }
     return this.selectListItems
   }
 
-  execute() {
-    throw new Error(`${this.name} should not be executed`)
+  selectItems () {
+    if (!selectList) {
+      const SelectList = require('./select-list')
+      selectList = new SelectList()
+    }
+    return selectList.selectFromItems(this.constructor.getSelectListItems())
+  }
+
+  async execute () {
+    const item = await this.selectItems()
+    if (item) {
+      this.vimState.operationStack.runNext(item.klass, {target: this.nextTarget})
+    }
   }
 }
 
 class TransformWordBySelectList extends TransformStringBySelectList {
-  target = "InnerWord"
+  nextTarget = 'InnerWord'
 }
 
 class TransformSmartWordBySelectList extends TransformStringBySelectList {
-  target = "InnerSmartWord"
+  nextTarget = 'InnerSmartWord'
 }
 
 // -------------------------
 class ReplaceWithRegister extends TransformString {
-  flashType = "operator-long"
+  flashType = 'operator-long'
 
-  initialize() {
+  initialize () {
     this.vimState.sequentialPasteManager.onInitialize(this)
     super.initialize()
   }
 
-  execute() {
+  execute () {
     this.sequentialPaste = this.vimState.sequentialPasteManager.onExecute(this)
 
     super.execute()
@@ -431,9 +418,9 @@ class ReplaceWithRegister extends TransformString {
     }
   }
 
-  getNewText(text, selection) {
+  getNewText (text, selection) {
     const value = this.vimState.register.get(null, selection, this.sequentialPaste)
-    return value ? value.text : ""
+    return value ? value.text : ''
   }
 }
 
@@ -443,7 +430,7 @@ class ReplaceOccurrenceWithRegister extends ReplaceWithRegister {
 
 // Save text to register before replace
 class SwapWithRegister extends TransformString {
-  getNewText(text, selection) {
+  getNewText (text, selection) {
     const newText = this.vimState.register.getText()
     this.setTextToRegister(text, selection)
     return newText
@@ -455,11 +442,11 @@ class SwapWithRegister extends TransformString {
 class Indent extends TransformString {
   stayByMarker = true
   setToFirstCharacterOnLinewise = true
-  wise = "linewise"
+  wise = 'linewise'
 
-  mutateSelection(selection) {
+  mutateSelection (selection) {
     // Need count times indentation in visual-mode and its repeat(`.`).
-    if (this.target.name === "CurrentSelection") {
+    if (this.target.name === 'CurrentSelection') {
       let oldText
       // limit to 100 to avoid freezing by accidental big number.
       this.countTimes(this.limitNumber(this.getCount(), {max: 100}), ({stop}) => {
@@ -472,19 +459,19 @@ class Indent extends TransformString {
     }
   }
 
-  indent(selection) {
+  indent (selection) {
     selection.indentSelectedRows()
   }
 }
 
 class Outdent extends Indent {
-  indent(selection) {
+  indent (selection) {
     selection.outdentSelectedRows()
   }
 }
 
 class AutoIndent extends Indent {
-  indent(selection) {
+  indent (selection) {
     selection.autoIndentSelectedRows()
   }
 }
@@ -493,16 +480,16 @@ class ToggleLineComments extends TransformString {
   flashTarget = false
   stayByMarker = true
   stayAtSamePosition = true
-  wise = "linewise"
+  wise = 'linewise'
 
-  mutateSelection(selection) {
+  mutateSelection (selection) {
     selection.toggleLineComments()
   }
 }
 
 class Reflow extends TransformString {
-  mutateSelection(selection) {
-    atom.commands.dispatch(this.editorElement, "autoflow:reflow-selection")
+  mutateSelection (selection) {
+    atom.commands.dispatch(this.editorElement, 'autoflow:reflow-selection')
   }
 }
 
@@ -515,36 +502,46 @@ class ReflowWithStay extends Reflow {
 class SurroundBase extends TransformString {
   static command = false
   surroundAction = null
-  pairs = [["(", ")"], ["{", "}"], ["[", "]"], ["<", ">"]]
+  pairs = [['(', ')'], ['{', '}'], ['[', ']'], ['<', '>']]
   pairsByAlias = {
-    b: ["(", ")"],
-    B: ["{", "}"],
-    r: ["[", "]"],
-    a: ["<", ">"],
+    b: ['(', ')'],
+    B: ['{', '}'],
+    r: ['[', ']'],
+    a: ['<', '>']
   }
 
-  getPair(char) {
+  initialize () {
+    this.replaceByDiff = this.getConfig('replaceByDiffOnSurround')
+    this.stayByMarker = this.replaceByDiff
+    super.initialize()
+  }
+
+  getPair (char) {
     return char in this.pairsByAlias
       ? this.pairsByAlias[char]
       : [...this.pairs, [char, char]].find(pair => pair.includes(char))
   }
 
-  surround(text, char, {keepLayout = false} = {}) {
+  surround (text, char, {keepLayout = false, selection} = {}) {
     let [open, close] = this.getPair(char)
-    if (!keepLayout && text.endsWith("\n")) {
-      this.autoIndentAfterInsertText = true
-      open += "\n"
-      close += "\n"
+    if (!keepLayout && text.endsWith('\n')) {
+      const baseIndentLevel = this.editor.indentationForBufferRow(selection.getBufferRange().start.row)
+      const indentTextStartRow = this.editor.buildIndentString(baseIndentLevel)
+      const indentTextOneLevel = this.editor.buildIndentString(1)
+
+      open = indentTextStartRow + open + '\n'
+      text = text.replace(/^(.+)$/gm, m => indentTextOneLevel + m)
+      close = indentTextStartRow + close + '\n'
     }
 
-    if (this.getConfig("charactersToAddSpaceOnSurround").includes(char) && this.utils.isSingleLineText(text)) {
-      text = " " + text + " "
+    if (this.getConfig('charactersToAddSpaceOnSurround').includes(char) && this.utils.isSingleLineText(text)) {
+      text = ' ' + text + ' '
     }
 
     return open + text + close
   }
 
-  deleteSurround(text) {
+  deleteSurround (text) {
     // Assume surrounding char is one-char length.
     const open = text[0]
     const close = text[text.length - 1]
@@ -552,28 +549,28 @@ class SurroundBase extends TransformString {
     return this.utils.isSingleLineText(text) && open !== close ? innerText.trim() : innerText
   }
 
-  getNewText(text) {
-    if (this.surroundAction === "surround") {
-      return this.surround(text, this.input)
-    } else if (this.surroundAction === "delete-surround") {
+  getNewText (text, selection) {
+    if (this.surroundAction === 'surround') {
+      return this.surround(text, this.input, {selection})
+    } else if (this.surroundAction === 'delete-surround') {
       return this.deleteSurround(text)
-    } else if (this.surroundAction === "change-surround") {
+    } else if (this.surroundAction === 'change-surround') {
       return this.surround(this.deleteSurround(text), this.input, {keepLayout: true})
     }
   }
 }
 
 class Surround extends SurroundBase {
-  surroundAction = "surround"
+  surroundAction = 'surround'
   readInputAfterSelect = true
 }
 
 class SurroundWord extends Surround {
-  target = "InnerWord"
+  target = 'InnerWord'
 }
 
 class SurroundSmartWord extends Surround {
-  target = "InnerSmartWord"
+  target = 'InnerSmartWord'
 }
 
 class MapSurround extends Surround {
@@ -584,14 +581,14 @@ class MapSurround extends Surround {
 // Delete Surround
 // -------------------------
 class DeleteSurround extends SurroundBase {
-  surroundAction = "delete-surround"
-  initialize() {
+  surroundAction = 'delete-surround'
+  initialize () {
     if (!this.target) {
       this.focusInput({
         onConfirm: char => {
-          this.setTarget(this.getInstance("APair", {pair: this.getPair(char)}))
+          this.setTarget(this.getInstance('APair', {pair: this.getPair(char)}))
           this.processOperation()
-        },
+        }
       })
     }
     super.initialize()
@@ -599,21 +596,21 @@ class DeleteSurround extends SurroundBase {
 }
 
 class DeleteSurroundAnyPair extends DeleteSurround {
-  target = "AAnyPair"
+  target = 'AAnyPair'
 }
 
 class DeleteSurroundAnyPairAllowForwarding extends DeleteSurroundAnyPair {
-  target = "AAnyPairAllowForwarding"
+  target = 'AAnyPairAllowForwarding'
 }
 
 // Change Surround
 // -------------------------
 class ChangeSurround extends DeleteSurround {
-  surroundAction = "change-surround"
+  surroundAction = 'change-surround'
   readInputAfterSelect = true
 
   // Override to show changing char on hover
-  async focusInputPromised(...args) {
+  async focusInputPromised (...args) {
     const hoverPoint = this.mutationManager.getInitialPointForSelection(this.editor.getLastSelection())
     this.vimState.hover.set(this.editor.getSelectedText()[0], hoverPoint)
     return super.focusInputPromised(...args)
@@ -621,11 +618,11 @@ class ChangeSurround extends DeleteSurround {
 }
 
 class ChangeSurroundAnyPair extends ChangeSurround {
-  target = "AAnyPair"
+  target = 'AAnyPair'
 }
 
 class ChangeSurroundAnyPairAllowForwarding extends ChangeSurroundAnyPair {
-  target = "AAnyPairAllowForwarding"
+  target = 'AAnyPairAllowForwarding'
 }
 
 // -------------------------
@@ -636,7 +633,7 @@ class JoinTarget extends TransformString {
   flashTarget = false
   restorePositions = false
 
-  mutateSelection(selection) {
+  mutateSelection (selection) {
     const range = selection.getBufferRange()
 
     // When cursor is at last BUFFER row, it select last-buffer-row, then
@@ -654,23 +651,23 @@ class JoinTarget extends TransformString {
 }
 
 class Join extends JoinTarget {
-  target = "MoveToRelativeLine"
+  target = 'MoveToRelativeLine'
 }
 
 class JoinBase extends TransformString {
   static command = false
-  wise = "linewise"
+  wise = 'linewise'
   trim = false
-  target = "MoveToRelativeLineMinimumTwo"
+  target = 'MoveToRelativeLineMinimumTwo'
 
-  getNewText(text) {
+  getNewText (text) {
     const regex = this.trim ? /\r?\n[ \t]*/g : /\r?\n/g
-    return text.trimRight().replace(regex, this.input) + "\n"
+    return text.trimRight().replace(regex, this.input) + '\n'
   }
 }
 
 class JoinWithKeepingSpace extends JoinBase {
-  input = ""
+  input = ''
 }
 
 class JoinByInput extends JoinBase {
@@ -686,14 +683,14 @@ class JoinByInputWithKeepingSpace extends JoinByInput {
 // -------------------------
 // String suffix in name is to avoid confusion with 'split' window.
 class SplitString extends TransformString {
-  target = "MoveToRelativeLine"
+  target = 'MoveToRelativeLine'
   keepSplitter = false
   readInputAfterSelect = true
   focusInputOptions = {charsMax: 10}
 
-  getNewText(text) {
-    const regex = new RegExp(this._.escapeRegExp(this.input || "\\n"), "g")
-    const lineSeparator = (this.keepSplitter ? this.input : "") + "\n"
+  getNewText (text) {
+    const regex = new RegExp(this._.escapeRegExp(this.input || '\\n'), 'g')
+    const lineSeparator = (this.keepSplitter ? this.input : '') + '\n'
     return text.replace(regex, lineSeparator)
   }
 }
@@ -704,16 +701,20 @@ class SplitStringWithKeepingSplitter extends SplitString {
 
 class SplitArguments extends TransformString {
   keepSeparator = true
-  autoIndentAfterInsertText = true
 
-  getNewText(text) {
+  getNewText (text, selection) {
     const allTokens = this.utils.splitArguments(text.trim())
-    let newText = ""
+    let newText = ''
+
+    const baseIndentLevel = this.editor.indentationForBufferRow(selection.getBufferRange().start.row)
+    const indentTextStartRow = this.editor.buildIndentString(baseIndentLevel)
+    const indentTextInnerRows = this.editor.buildIndentString(baseIndentLevel + 1)
+
     while (allTokens.length) {
       const {text, type} = allTokens.shift()
-      newText += type === "separator" ? (this.keepSeparator ? text.trim() : "") + "\n" : text
+      newText += type === 'separator' ? (this.keepSeparator ? text.trim() : '') + '\n' : indentTextInnerRows + text
     }
-    return `\n${newText}\n`
+    return `\n${newText}\n${indentTextStartRow}`
   }
 }
 
@@ -722,106 +723,104 @@ class SplitArgumentsWithRemoveSeparator extends SplitArguments {
 }
 
 class SplitArgumentsOfInnerAnyPair extends SplitArguments {
-  target = "InnerAnyPair"
+  target = 'InnerAnyPair'
 }
 
 class ChangeOrder extends TransformString {
   static command = false
-  getNewText(text) {
+  action = null
+  sortBy = null
+
+  getNewText (text) {
     return this.target.isLinewise()
-      ? this.getNewList(this.utils.splitTextByNewLine(text)).join("\n") + "\n"
+      ? this.getNewList(this.utils.splitTextByNewLine(text)).join('\n') + '\n'
       : this.sortArgumentsInTextBy(text, args => this.getNewList(args))
   }
 
-  sortArgumentsInTextBy(text, fn) {
+  getNewList (rows) {
+    if (rows.length === 1) {
+      return [this.utils.changeCharOrder(rows[0], this.action, this.sortBy)]
+    } else {
+      return this.utils.changeArrayOrder(rows, this.action, this.sortBy)
+    }
+  }
+
+  sortArgumentsInTextBy (text, fn) {
     const start = text.search(/\S/)
     const end = text.search(/\s*$/)
-    const leadingSpaces = start !== -1 ? text.slice(0, start) : ""
-    const trailingSpaces = end !== -1 ? text.slice(end) : ""
+    const leadingSpaces = start !== -1 ? text.slice(0, start) : ''
+    const trailingSpaces = end !== -1 ? text.slice(end) : ''
     const allTokens = this.utils.splitArguments(text.slice(start, end))
-    const args = allTokens.filter(token => token.type === "argument").map(token => token.text)
+    const args = allTokens.filter(token => token.type === 'argument').map(token => token.text)
     const newArgs = fn(args)
 
-    let newText = ""
+    let newText = ''
     while (allTokens.length) {
       const token = allTokens.shift()
       // token.type is "separator" or "argument"
-      newText += token.type === "separator" ? token.text : newArgs.shift()
+      newText += token.type === 'separator' ? token.text : newArgs.shift()
     }
     return leadingSpaces + newText + trailingSpaces
   }
 }
 
 class Reverse extends ChangeOrder {
-  getNewList(rows) {
-    return rows.reverse()
-  }
+  action = 'reverse'
 }
 
 class ReverseInnerAnyPair extends Reverse {
-  target = "InnerAnyPair"
+  target = 'InnerAnyPair'
 }
 
 class Rotate extends ChangeOrder {
-  backwards = false
-  getNewList(rows) {
-    if (this.backwards) rows.push(rows.shift())
-    else rows.unshift(rows.pop())
-    return rows
-  }
+  action = 'rotate-left'
 }
 
 class RotateBackwards extends ChangeOrder {
-  backwards = true
+  action = 'rotate-right'
 }
 
 class RotateArgumentsOfInnerPair extends Rotate {
-  target = "InnerAnyPair"
+  target = 'InnerAnyPair'
 }
 
-class RotateArgumentsBackwardsOfInnerPair extends RotateArgumentsOfInnerPair {
-  backwards = true
+class RotateArgumentsBackwardsOfInnerPair extends RotateBackwards {
+  target = 'InnerAnyPair'
 }
 
 class Sort extends ChangeOrder {
-  getNewList(rows) {
-    return rows.sort()
-  }
+  action = 'sort'
 }
 
-class SortCaseInsensitively extends ChangeOrder {
-  getNewList(rows) {
-    return rows.sort((rowA, rowB) => rowA.localeCompare(rowB, {sensitivity: "base"}))
-  }
+class SortCaseInsensitively extends Sort {
+  sortBy = (rowA, rowB) => rowA.localeCompare(rowB, {sensitivity: 'base'})
 }
 
-class SortByNumber extends ChangeOrder {
-  getNewList(rows) {
-    return this._.sortBy(rows, row => Number.parseInt(row) || Infinity)
-  }
+class SortByNumber extends Sort {
+  sortBy = (rowA, rowB) => (Number.parseInt(rowA) || Infinity) - (Number.parseInt(rowB) || Infinity)
 }
 
 class NumberingLines extends TransformString {
-  wise = "linewise"
+  wise = 'linewise'
 
-  getNewText(text) {
+  getNewText (text) {
     const rows = this.utils.splitTextByNewLine(text)
     const lastRowWidth = String(rows.length).length
 
     const newRows = rows.map((rowText, i) => {
       i++ // fix 0 start index to 1 start.
       const amountOfPadding = this.limitNumber(lastRowWidth - String(i).length, {min: 0})
-      return " ".repeat(amountOfPadding) + i + ": " + rowText
+      return ' '.repeat(amountOfPadding) + i + ': ' + rowText
     })
-    return newRows.join("\n") + "\n"
+    return newRows.join('\n') + '\n'
   }
 }
 
 class DuplicateWithCommentOutOriginal extends TransformString {
-  wise = "linewise"
+  wise = 'linewise'
   stayByMarker = true
   stayAtSamePosition = true
-  mutateSelection(selection) {
+  mutateSelection (selection) {
     const [startRow, endRow] = selection.getBufferRowRange()
     selection.setBufferRange(this.utils.insertTextAtBufferPosition(this.editor, [startRow, 0], selection.getText()))
     this.editor.toggleLineCommentsForBufferRows(startRow, endRow)
@@ -910,7 +909,7 @@ module.exports = {
   SortCaseInsensitively,
   SortByNumber,
   NumberingLines,
-  DuplicateWithCommentOutOriginal,
+  DuplicateWithCommentOutOriginal
 }
 for (const klass of Object.values(module.exports)) {
   if (klass.isCommand()) klass.registerToSelectList()
