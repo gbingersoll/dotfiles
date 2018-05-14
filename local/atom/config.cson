@@ -37,6 +37,8 @@
     ]
   "dbg-gdb":
     logToConsole: true
+  diagrams:
+    previewWidth: 1096
   editor:
     invisibles:
       eol: " "
@@ -61,7 +63,6 @@
     extensions: "c++,cc,cpp,cu,cuh,h,hpp,c"
   "linter-ui-default":
     panelHeight: 396
-    showPanel: true
   minimap:
     displayMinimapOnLeft: true
   "platformio-ide-terminal":
@@ -78,6 +79,10 @@
     specFramework: "rspec"
     unityAllCommand: "cd test;rake test"
     unityFileCommand: "cd test;rake test:{base_name}"
+  "sync-settings":
+    _lastBackupHash: "09b9171c81cb66f811eb534cf924467781dac4a7"
+    gistId: "df85f15e201522b8c4991bef7312e96c"
+    personalAccessToken: "6c87836a4c94309a234ae0185acdcad25e183cd0"
   welcome:
     showOnStartup: false
 ".makefile.source":
