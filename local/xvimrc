@@ -1,0 +1,7 @@
+" bind jk to Esc in insert mode
+inoremap jk <Esc>
+inoremap jj <Esc>
+
+" bind gcc to comment line
+nnoremap gcc :xcmenucmd Comment Selection<CR>
+
