@@ -23,3 +23,4 @@ let g:rails_gem_projections = {'draper': { 'app/decorators/*.rb': { 'command': '
 
 " bind jk to Esc in insert mode
 inoremap jk <Esc>
+inoremap jj <Esc>
