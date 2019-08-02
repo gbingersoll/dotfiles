@@ -4,6 +4,8 @@
   lg = !"git lg1"
 [pretty]
   colored = format:%Cred%h%Creset %s %Cgreen(%cr) %C(bold blue)%an%Creset
+[pager]
+  log = gitmoji-log | less --tabs=4 -rFX
 [user]
   name = Greg Ingersoll
   email = greg.ingersoll@convolutionresearch.com
