@@ -1,0 +1,19 @@
+{
+  "theme": "~/.config/powerline-shell/.powerline-theme.py",
+  "segments": [
+    "ssh",
+    "virtual_env",
+    "cwd",
+    "git",
+    "svn",
+    "root"
+  ],
+  "cwd": {
+    "max_depth": 3,
+    "max_dir_size": 9,
+    "full_cwd": 8
+  },
+  "vcs": {
+    "show_symbol": true
+  }
+}

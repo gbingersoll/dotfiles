@@ -7,17 +7,35 @@ source "$HOME/.env.local"
 
 unsetopt correct_all
 
-PS1='${SSH_CONNECTION+"%{$fg_bold[green]%}%n@%m:"}%{$fg_bold[blue]%}%c%{$reset_color%} %# '
-
-function zle-line-init zle-keymap-select {
-  VIM_PROMPT="%{$fg_bold[yellow]%} [% NORMAL]%  %{$reset_color%}"
-  RPS1="${${KEYMAP/vicmd/$VIM_PROMPT}/(main|viins)/}$(git_prompt_info) $EPS1"
-  zle reset-prompt
+function powerline_precmd() {
+    PS1="$(powerline-shell --shell zsh $?)"
 }
 
-zle -N zle-line-init
-zle -N zle-keymap-select
-export KEYTIMEOUT=1
+function install_powerline_precmd() {
+  for s in "${precmd_functions[@]}"; do
+    if [ "$s" = "powerline_precmd" ]; then
+      return
+    fi
+  done
+  precmd_functions+=(powerline_precmd)
+}
+
+if [ "$TERM" != "linux" ]; then
+    install_powerline_precmd
+fi
+
+# PS1='${SSH_CONNECTION+"%{$fg_bold[green]%}%n@%m:"}%{$fg_bold[blue]%}%c%{$reset_color%} %# '
+
+# function zle-line-init zle-keymap-select {
+  # VIM_PROMPT="%{$fg_bold[yellow]%} [% NORMAL]%  %{$reset_color%}"
+  # RPS1="${${KEYMAP/vicmd/$VIM_PROMPT}/(main|viins)/}$(git_prompt_info) $EPS1"
+  # zle reset-prompt
+# }
+
+export KEYTIMEOUT=40
+# zle -N zle-line-init
+# zle -N zle-keymap-select
+bindkey -M viins "jj" vi-cmd-mode
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -25,6 +43,27 @@ export NVM_DIR="$HOME/.nvm"
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
 
 export PATH="$PATH:./bin"
+export PATH="$PATH:$HOME/Library/Python/3.7/bin"
+
+eval "$(pyenv init -)"
+
+export PATH="$HOME/miniconda3/bin:$PATH"
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/Users/gbingersoll/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/Users/gbingersoll/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/Users/gbingersoll/miniconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/Users/gbingersoll/miniconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+
 
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
