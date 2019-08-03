@@ -24,29 +24,27 @@ function install_powerline_precmd() {
 if [ "$TERM" != "linux" ]; then
   install_powerline_precmd
 fi
-# zzz
-# PS1='${SSH_CONNECTION+"%{$fg_bold[green]%}%n@%m:"}%{$fg_bold[blue]%}%c%{$reset_color%} %# '
 
-# function zle-line-init zle-keymap-select {
-  # VIM_PROMPT="%{$fg_bold[yellow]%} [% NORMAL]%  %{$reset_color%}"
-  # RPS1="${${KEYMAP/vicmd/$VIM_PROMPT}/(main|viins)/}$(git_prompt_info) $EPS1"
-  # zle reset-prompt
-# }
+if [ "$(uname 2> /dev/null)" == "Linux" ]; then
+  # Set up directory listing coloring
+  if [ -f ~/.dircolors ]; then
+    eval `dircolors ~/.dircolors`
+  fi
+fi
 
-# zle -N zle-line-init
-# zle -N zle-keymap-select
-case `uname` in
-  Darwin)
-    export KEYTIMEOUT=40
-    bindkey -M viins "jj" vi-cmd-mode
-  ;;
-  Linux)
-    export KEYTIMEOUT=1
-    if [ -f ~/.dircolors ]; then
-      eval `dircolors ~/.dircolors`
-    fi
-  ;;
-esac
+# Set up vim mode on command line
+function zle-line-init zle-keymap-select {
+  VIM_PROMPT="%{$fg_bold[yellow]%} [% NORMAL]%  %{$reset_color%}"
+  RPS1="${${KEYMAP/vicmd/$VIM_PROMPT}/(main|viins)/} $EPS1"
+  zle reset-prompt
+}
+zle -N zle-line-init
+zle -N zle-keymap-select
+
+# Allow jj/jk to enter normal mode
+export KEYTIMEOUT=40
+bindkey -M viins "jj" vi-cmd-mode
+bindkey -M viins "jk" vi-cmd-mode
 
 # Load NVM for Node.js
 export NVM_DIR="$HOME/.nvm"
