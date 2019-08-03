@@ -43,11 +43,14 @@ class Color(DefaultColor):
     SVN_CHANGES_BG = REPO_DIRTY_BG
     SVN_CHANGES_FG = REPO_DIRTY_FG
 
-    VIRTUAL_ENV_BG = 2
-    VIRTUAL_ENV_FG = 0
+    VIRTUAL_ENV_BG = 0
+    VIRTUAL_ENV_FG = 2
 
     AWS_PROFILE_FG = 14
     AWS_PROFILE_BG = 8
+
+    SSH_BG = 0
+    SSH_FG = 3
 
     TIME_FG = 8
     TIME_BG = 7

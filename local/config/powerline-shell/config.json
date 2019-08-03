@@ -1,5 +1,5 @@
 {
-  "theme": "~/.config/powerline-shell/.powerline-theme.py",
+  "theme": "~/.config/powerline-shell/powerline-theme.py",
   "segments": [
     "ssh",
     "virtual_env",
