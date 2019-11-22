@@ -56,8 +56,9 @@ bindkey -M viins "jj" vi-cmd-mode
 bindkey -M viins "jk" vi-cmd-mode
 
 # Load NVM for Node.js
-# export ZSHNVM_DIR="$HOME/.zsh-nvm"
-# [ -s "$ZSHNVM_DIR/zsh-nvm.plugin.zsh" ] && \. "$ZSHNVM_DIR/zsh-nvm.plugin.zsh"
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 if [ "$(uname 2> /dev/null)" == "Linux" ]; then
   # Set up linuxbrew package manager
