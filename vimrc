@@ -1,3 +1,11 @@
+scriptencoding utf-8
+
+" Use Powershell on Windows
+if has('win32')
+  "set shell=C:\WINDOWS\system32\powershell.exe
+  set shell=powershell.exe
+endif
+
 " Leader
 let mapleader = " "
 
