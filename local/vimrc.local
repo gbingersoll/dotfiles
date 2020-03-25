@@ -22,10 +22,3 @@ endif
 inoremap jk <Esc>
 inoremap jj <Esc>
 
-if has('win32')
-  " Set up block cursor for normal mode and vertical bar for insert mode
-  let &t_ti.="\e[1 q"
-  let &t_SI.="\e[5 q"
-  let &t_EI.="\e[1 q"
-  let &t_te.="\e[0 q"
-endif
