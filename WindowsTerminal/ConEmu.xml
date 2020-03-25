@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <key name="Software">
 	<key name="ConEmu">
-		<key name=".Vanilla" modified="2020-02-28 10:40:10" build="191012">
-			<value name="ColorTable00" type="dword" data="00222827"/>
-			<value name="ColorTable01" type="dword" data="009e5401"/>
-			<value name="ColorTable02" type="dword" data="0004aa74"/>
-			<value name="ColorTable03" type="dword" data="00a6831a"/>
-			<value name="ColorTable04" type="dword" data="003403a7"/>
-			<value name="ColorTable05" type="dword" data="009c5689"/>
-			<value name="ColorTable06" type="dword" data="0049b6b6"/>
-			<value name="ColorTable07" type="dword" data="00cacaca"/>
-			<value name="ColorTable08" type="dword" data="007c7c7c"/>
-			<value name="ColorTable09" type="dword" data="00f58303"/>
-			<value name="ColorTable10" type="dword" data="0006d08d"/>
-			<value name="ColorTable11" type="dword" data="00e5c258"/>
-			<value name="ColorTable12" type="dword" data="004b04f3"/>
-			<value name="ColorTable13" type="dword" data="00b87da8"/>
-			<value name="ColorTable14" type="dword" data="0081cccc"/>
-			<value name="ColorTable15" type="dword" data="00ffffff"/>
+		<key name=".Vanilla" modified="2020-03-25 10:41:44" build="191012">
+			<value name="ColorTable00" type="dword" data="001e1d1b"/>
+			<value name="ColorTable01" type="dword" data="00d28b26"/>
+			<value name="ColorTable02" type="dword" data="0014b482"/>
+			<value name="ColorTable03" type="dword" data="00d6c256"/>
+			<value name="ColorTable04" type="dword" data="007226f9"/>
+			<value name="ColorTable05" type="dword" data="00fe548c"/>
+			<value name="ColorTable06" type="dword" data="001f97fd"/>
+			<value name="ColorTable07" type="dword" data="00c6cccc"/>
+			<value name="ColorTable08" type="dword" data="00545350"/>
+			<value name="ColorTable09" type="dword" data="00e3ad62"/>
+			<value name="ColorTable10" type="dword" data="0046ebb7"/>
+			<value name="ColorTable11" type="dword" data="00e5d894"/>
+			<value name="ColorTable12" type="dword" data="009559ff"/>
+			<value name="ColorTable13" type="dword" data="00fea0bf"/>
+			<value name="ColorTable14" type="dword" data="006cedfe"/>
+			<value name="ColorTable15" type="dword" data="00f2f8f8"/>
 			<value name="ColorTable16" type="dword" data="00222827"/>
 			<value name="ColorTable17" type="dword" data="009e5401"/>
 			<value name="ColorTable18" type="dword" data="0004aa74"/>
@@ -124,11 +124,11 @@
 			<value name="ColorKeyValue" type="dword" data="00010101"/>
 			<value name="UseCurrentSizePos" type="hex" data="01"/>
 			<value name="WindowMode" type="dword" data="0000051f"/>
-			<value name="ConWnd Width" type="dword" data="00000078"/>
-			<value name="ConWnd Height" type="dword" data="0000001e"/>
+			<value name="ConWnd Width" type="dword" data="000000ab"/>
+			<value name="ConWnd Height" type="dword" data="0000001f"/>
 			<value name="Cascaded" type="hex" data="01"/>
-			<value name="ConWnd X" type="long" data="-1703"/>
-			<value name="ConWnd Y" type="long" data="472"/>
+			<value name="ConWnd X" type="long" data="268"/>
+			<value name="ConWnd Y" type="long" data="268"/>
 			<value name="16bit Height" type="ulong" data="0"/>
 			<value name="AutoSaveSizePos" type="hex" data="01"/>
 			<value name="IntegralSize" type="hex" data="00"/>
@@ -674,7 +674,7 @@
 			<value name="StatusBar.Hide.Dpi" type="hex" data="01"/>
 			<value name="TabFlashChanged" type="long" data="8"/>
 			<value name="TabModifiedSuffix" type="string" data="[*]"/>
-			<key name="HotKeys" modified="2020-02-27 13:42:05" build="191012">
+			<key name="HotKeys" modified="2020-03-25 10:41:44" build="191012">
 				<value name="KeyMacroVersion" type="hex" data="02"/>
 				<value name="Multi.Modifier" type="dword" data="00000011"/>
 				<value name="Multi.ArrowsModifier" type="dword" data="0000005b"/>
@@ -715,7 +715,7 @@
 				<value name="Multi.Scroll" type="dword" data="00000000"/>
 				<value name="Multi.GroupInput" type="dword" data="00005d47"/>
 				<value name="Multi.Detach" type="dword" data="00000000"/>
-				<value name="Multi.Close" type="dword" data="00001157"/>
+				<value name="Multi.Close" type="dword" data="00000000"/>
 				<value name="CloseTabKey" type="dword" data="00000000"/>
 				<value name="CloseGroupKey" type="dword" data="00000000"/>
 				<value name="CloseGroupPrcKey" type="dword" data="00000000"/>
@@ -873,7 +873,7 @@
 			</key>
 			<value name="StartCreateDelay" type="ulong" data="100"/>
 			<value name="DefaultTerminalDebugLog" type="hex" data="00"/>
-			<value name="LastMonitor" type="string" data="-2467,0,0,1440"/>
+			<value name="LastMonitor" type="string" data="0,0,3614,2160"/>
 			<value name="Restore2ActiveMon" type="hex" data="00"/>
 			<value name="DownShowExOnTopMessage" type="hex" data="00"/>
 			<value name="EnvironmentSet" type="multi">
