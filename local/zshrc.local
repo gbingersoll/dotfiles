@@ -98,3 +98,5 @@ export PATH="$PATH:$HOME/.rvm/bin"
   # fi
 # fi
 
+export PATH="$HOME/.poetry/bin:$PATH"
+
